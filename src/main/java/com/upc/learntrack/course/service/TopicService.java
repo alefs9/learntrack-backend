@@ -4,7 +4,9 @@ import com.upc.learntrack.course.dto.TopicDto;
 import java.util.List;
 
 public interface TopicService {
-    List<TopicDto> findAllByCollection(Long collectionId);
+    List<TopicDto> findAllByCollectionName(String collectionName);
     TopicDto findById(Long id);
-    TopicDto save(TopicDto dto);
+    TopicDto save(String collectionName, TopicDto dto);
+    List<TopicDto> findAll();
+    List<TopicDto> findPrioritizedTopicsForStudent(String studentEmail);
 }
