@@ -37,4 +37,11 @@ public class CollectionGroupController {
         collectionGroupService.delete(collectionId, groupId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/move")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<Void> moveGroupToCollection(@RequestBody MoveGroupRequest request) {
+        collectionGroupService.moveGroup(request.getGroupId(), request.getTargetCollectionId());
+        return ResponseEntity.ok().build();
+    }
 }

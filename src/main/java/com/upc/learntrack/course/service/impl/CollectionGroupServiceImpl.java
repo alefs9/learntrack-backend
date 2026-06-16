@@ -67,4 +67,35 @@ public class CollectionGroupServiceImpl implements CollectionGroupService {
 
         collectionGroupRepository.deleteById(compositeKey);
     }
+
+    @Override
+    @Transactional
+    public void moveGroup(Long groupId, Long targetCollectionId) {
+        // Buscar la vinculación actual del grupo
+        List<CollectionGroup> currentLinks = collectionGroupRepository.findAllByIdGroupId(groupId);
+        if (currentLinks.isEmpty()) {
+            throw new CollectionGroupNotFoundException("El grupo no está vinculado a ninguna colección");
+        }
+        if (currentLinks.size() > 1) {
+            throw new IllegalStateException("El grupo tiene múltiples vinculaciones. No se puede mover.");
+        }
+
+        CollectionGroup current = currentLinks.get(0);
+
+        // Buscar la colección destino
+        LearningCollection targetCollection = learningCollectionRepository.findById(targetCollectionId)
+                .orElseThrow(() -> new LearningCollectionNotFoundException("Colección destino no encontrada"));
+
+        // Eliminar la vinculación actual
+        collectionGroupRepository.delete(current);
+
+        // Crear la nueva vinculación
+        CollectionGroupId newId = new CollectionGroupId(targetCollectionId, groupId);
+        CollectionGroup newLink = new CollectionGroup();
+        newLink.setId(newId);
+        newLink.setLearningCollection(targetCollection);
+        newLink.setGroup(current.getGroup());
+
+        collectionGroupRepository.save(newLink);
+    }
 }

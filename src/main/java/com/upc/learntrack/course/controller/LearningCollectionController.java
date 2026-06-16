@@ -63,4 +63,13 @@ public class LearningCollectionController {
             @RequestParam(required = false) LocalDate endDate) {
         return ResponseEntity.ok(learningCollectionService.getGroupsStatistics(collectionName, startDate, endDate));
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<LearningCollectionDto> update(
+            @PathVariable Long id,
+            @Valid @RequestBody LearningCollectionDto dto,
+            Principal principal) {
+        return ResponseEntity.ok(learningCollectionService.update(id, dto, principal.getName()));
+    }
 }
