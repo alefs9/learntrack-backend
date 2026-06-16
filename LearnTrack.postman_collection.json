@@ -1,0 +1,395 @@
+{
+  "info": {
+    "name": "LearnTrack API - Completa",
+    "_postman_id": "a7e3c1b9-1234-5678-9abc-def012345678",
+    "description": "Colección completa de LearnTrack con todos los endpoints implementados. Datos de prueba incluidos en data.sql.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080", "type": "string" },
+    { "key": "jwt", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [ { "key": "token", "value": "{{jwt}}", "type": "string" } ]
+  },
+  "item": [
+    {
+      "name": "1. Autenticación (IAM)",
+      "item": [
+        {
+          "name": "Registrar Docente",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "url": "{{base_url}}/api/v1/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Carlos\",\n  \"lastName\": \"Gomez\",\n  \"email\": \"profesor@upc.edu.pe\",\n  \"password\": \"password123\",\n  \"roleName\": \"DOCENTE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar Estudiante",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "url": "{{base_url}}/api/v1/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ana\",\n  \"lastName\": \"García\",\n  \"email\": \"alumno1@upc.edu.pe\",\n  \"password\": \"password123\",\n  \"roleName\": \"ESTUDIANTE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Iniciar Sesión (Docente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) { pm.collectionVariables.set('jwt', pm.response.text()); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "url": "{{base_url}}/api/v1/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"profesor@upc.edu.pe\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Iniciar Sesión (Estudiante)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) { pm.collectionVariables.set('jwt', pm.response.text()); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "url": "{{base_url}}/api/v1/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alumno1@upc.edu.pe\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Obtener Mi Perfil",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/users/me" }
+        },
+        {
+          "name": "Listar Todos los Usuarios (Admin)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/users" }
+        }
+      ]
+    },
+    {
+      "name": "2. Gestión de Grupos y Colecciones",
+      "item": [
+        {
+          "name": "Crear Grupo (Nuevo)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/groups",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ingeniería de Software I\",\n  \"code\": \"SW54\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar Mis Grupos (Docente)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/groups/mine" }
+        },
+        {
+          "name": "Obtener Estudiantes de un Grupo",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/groups/1/students" }
+        },
+        {
+          "name": "Inscribir Estudiante a Grupo (usando grupo existente SW51)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/enrollments/group/SW51",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentEmail\": \"alumno1@upc.edu.pe\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear Colección de Aprendizaje (única)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/collections",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Java Avanzado\",\n  \"description\": \"Spring Boot y microservicios\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar Mis Colecciones (Docente)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/collections/mine" }
+        },
+        {
+          "name": "Vincular Colección a Grupo (usando grupo existente Ingeniería de Software II)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/collection-groups",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"collectionName\": \"Java Avanzado\",\n  \"groupName\": \"Ingeniería de Software II\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear Tema en Colección (Docente)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/collections/Java%20Avanzado/topics",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Beans\",\n  \"orderIdx\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar Temas de Colección",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/collections/Java%20Avanzado/topics" }
+        },
+        {
+          "name": "Listar Todos los Temas (Selección autónoma)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/topics" }
+        }
+      ]
+    },
+    {
+      "name": "3. Actividades de Aprendizaje",
+      "item": [
+        {
+          "name": "Crear Actividad (Docente/Estudiante)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/topics/1/activities",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Quiz Spring Core\",\n  \"description\": \"Preguntas sobre IoC y DI\",\n  \"type\": \"QUIZ\",\n  \"status\": \"PUBLISHED\",\n  \"generatedByAi\": false,\n  \"questions\": [\n    {\n      \"statement\": \"¿Qué es la inyección de dependencias?\",\n      \"explanation\": \"Es un patrón donde los objetos reciben sus dependencias en lugar de crearlas internamente.\",\n      \"orderIdx\": 0,\n      \"options\": [\n        { \"text\": \"Un patrón de diseño\", \"correct\": true },\n        { \"text\": \"Un framework\", \"correct\": false },\n        { \"text\": \"Un lenguaje de programación\", \"correct\": false },\n        { \"text\": \"Una base de datos\", \"correct\": false }\n      ]\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Obtener Actividad (Estudiante oculta respuestas correctas)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/activities/1" }
+        },
+        {
+          "name": "Listar Actividades Pendientes (Estudiante)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/activities/pending" }
+        },
+        {
+          "name": "Asignar Actividad a Múltiples Grupos",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/activities/1/assignments",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCodes\": [\"SW51\"],\n  \"dueDate\": \"2026-12-31T23:59:59\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Actualizar Actividad",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/api/v1/activities/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Quiz Spring Core Modificado\",\n  \"description\": \"Nueva descripción\",\n  \"type\": \"QUIZ\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Eliminar Actividad",
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/v1/activities/1" }
+        }
+      ]
+    },
+    {
+      "name": "4. Evaluación y Resultados",
+      "item": [
+        {
+          "name": "Enviar Resolución de Quiz (Estudiante)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/topics/Fundamentos%20de%20Spring/activities/Quiz%20Spring%20Core/submit",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"timeSpentSeconds\": 120,\n  \"answers\": [\n    {\n      \"questionText\": \"¿Qué es la inyección de dependencias?\",\n      \"selectedOptionText\": \"Un patrón de diseño\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Ver Mis Resultados (Lista)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/results/mine" }
+        },
+        {
+          "name": "Ver Detalle de Resultado con Retroalimentación",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/results/1" }
+        },
+        {
+          "name": "Ver Evolución Temporal (Timeline)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/results/mine/timeline?topicId=1&startDate=2026-01-01&endDate=2026-12-31" }
+        },
+        {
+          "name": "Estadísticas de Colección (Docente) con Filtro de Fechas",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/collections/Java%20Avanzado/statistics?startDate=2026-01-01&endDate=2026-12-31" }
+        },
+        {
+          "name": "Comparativa entre Grupos (Docente) con Fechas",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/collections/Java%20Avanzado/groups-statistics?startDate=2026-01-01&endDate=2026-12-31" }
+        },
+        {
+          "name": "Estadísticas por Grupo (Snapshot)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/groups/SW51/statistics" }
+        }
+      ]
+    },
+    {
+      "name": "5. Reportes PDF y Correo",
+      "item": [
+        {
+          "name": "Generar Reporte PDF y Enviar por Correo (Docente)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/reports",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"SW51\",\n  \"collectionName\": \"Java Avanzado\",\n  \"optionalEmail\": \"ayuda@learntrack.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar Reportes de un Grupo",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/groups/SW51/reports" }
+        },
+        {
+          "name": "Descargar Reporte PDF Guardado",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/reports/1/download" }
+        }
+      ]
+    },
+    {
+      "name": "6. Rutas de Aprendizaje (Adaptativo)",
+      "item": [
+        {
+          "name": "Obtener Ruta Adaptativa (Estudiante)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/collections/Java%20Avanzado/learning-path" }
+        },
+        {
+          "name": "Listar Mis Rutas (Estudiante)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/learning-paths/mine" }
+        },
+        {
+          "name": "Rutas de Aprendizaje de un Grupo (Docente)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/groups/SW51/learning-paths" }
+        },
+        {
+          "name": "Ver Brechas Conceptuales de mi Ruta",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/learning-paths/1/gaps" }
+        },
+        {
+          "name": "Resolver Brecha Conceptual",
+          "request": { "method": "PATCH", "url": "{{base_url}}/api/v1/learning-paths/gaps/1/resolve" }
+        },
+        {
+          "name": "Brechas Grupales (Temas a reenseñar)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/groups/SW51/gaps" }
+        },
+        {
+          "name": "Brechas a Nivel de Subtemas",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/groups/SW51/subtopics-gaps" }
+        }
+      ]
+    },
+    {
+      "name": "7. Flashcards",
+      "item": [
+        {
+          "name": "Obtener Flashcards de un Tema",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/topics/1/flashcards" }
+        },
+        {
+          "name": "Registrar Progreso (Recordé / No recordé)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/flashcards/1/recall",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flashcardId\": 1,\n  \"recalled\": true\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Inteligencia Artificial (Generación de Actividades)",
+      "item": [
+        {
+          "name": "Subir PDF y Generar Actividad (IA local / Ollama)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/ai/upload-activity?topicName=Fundamentos%20de%20Spring",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "/path/to/document.pdf" },
+                { "key": "topicName", "type": "text", "value": "Fundamentos de Spring" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Priorización de Temas (Docente)",
+      "item": [
+        {
+          "name": "Marcar Tema como Prioritario para un Grupo",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/v1/groups/1/topics/1/priority?priority=true"
+          }
+        }
+      ]
+    }
+  ]
+}
