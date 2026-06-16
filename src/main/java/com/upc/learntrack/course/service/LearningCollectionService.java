@@ -13,4 +13,5 @@ public interface LearningCollectionService {
     LearningCollectionDto save(LearningCollectionDto dto, String teacherEmail);
     List<TopicStatisticDto> getStatisticsByCollection(String collectionName, LocalDate startDate, LocalDate endDate);
     List<GroupStatisticDto> getGroupsStatistics(String collectionName, LocalDate startDate, LocalDate endDate);
+    LearningCollectionDto update(Long id, LearningCollectionDto dto, String teacherEmail);
 }

@@ -132,4 +132,25 @@ public class LearningCollectionServiceImpl implements LearningCollectionService 
         }
         return result;
     }
+
+    @Override
+    @Transactional
+    public LearningCollectionDto update(Long id, LearningCollectionDto dto, String teacherEmail) {
+        LearningCollection collection = learningCollectionRepository.findById(id)
+                .orElseThrow(() -> new LearningCollectionNotFoundException("Colección no encontrada"));
+
+        if (!collection.getTeacher().getUser().getEmail().equals(teacherEmail)) {
+            throw new SecurityException("No tienes permiso para modificar esta colección");
+        }
+
+        // Validar nombre duplicado (excepto sí mismo)
+        if (!collection.getName().equals(dto.getName()) &&
+                learningCollectionRepository.existsByNameAndTeacherId(dto.getName(), collection.getTeacher().getId())) {
+            throw new IllegalArgumentException("Ya existe una colección con el nombre '" + dto.getName() + "'.");
+        }
+
+        collection.setName(dto.getName());
+        collection.setDescription(dto.getDescription());
+        return learningCollectionMapper.toDto(learningCollectionRepository.save(collection));
+    }
 }
