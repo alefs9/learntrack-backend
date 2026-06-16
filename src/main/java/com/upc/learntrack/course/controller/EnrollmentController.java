@@ -6,9 +6,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/enrollments")
@@ -17,20 +16,11 @@ public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
 
-    @GetMapping("/group/{groupId}")
-    public ResponseEntity<List<EnrollmentDto>> findAllByGroup(@PathVariable Long groupId) {
-        return ResponseEntity.ok(enrollmentService.findAllByGroup(groupId));
-    }
-
-    @PostMapping("/group/{groupId}")
-    public ResponseEntity<EnrollmentDto> save(@PathVariable Long groupId, @Valid @RequestBody EnrollmentDto dto) {
-        dto.setGroupId(groupId);
-        return new ResponseEntity<>(enrollmentService.save(dto), HttpStatus.CREATED);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        enrollmentService.delete(id);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/group/{groupCode}")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<EnrollmentDto> enrollStudent(
+            @PathVariable String groupCode,
+            @Valid @RequestBody EnrollmentDto dto) {
+        return new ResponseEntity<>(enrollmentService.enrollStudent(groupCode, dto), HttpStatus.CREATED);
     }
 }
