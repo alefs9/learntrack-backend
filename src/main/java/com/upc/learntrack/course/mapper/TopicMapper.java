@@ -4,12 +4,13 @@ import com.upc.learntrack.course.dto.TopicDto;
 import com.upc.learntrack.course.model.Topic;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TopicMapper {
-    @Mapping(source = "learningCollection.id", target = "learningCollectionId")
     TopicDto toDto(Topic topic);
 
-    @Mapping(source = "learningCollectionId", target = "learningCollection.id")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "learningCollection", ignore = true)
     Topic toEntity(TopicDto topicDto);
 }

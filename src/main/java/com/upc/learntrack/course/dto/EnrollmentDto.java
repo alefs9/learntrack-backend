@@ -2,21 +2,14 @@ package com.upc.learntrack.course.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
-import java.time.LocalDateTime;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class EnrollmentDto {
     private Long id;
-
-    @NotBlank(message = "El correo del estudiante es obligatorio")
-    @Email(message = "El formato del correo es inválido")
+    
+    @NotBlank(message = "El email del estudiante es obligatorio")
+    @Email
     private String studentEmail;
-
-    private Long groupId;
-    private LocalDateTime enrolledAt;
+    private String groupCode;
 }

@@ -9,10 +9,8 @@ import java.util.Optional; // Importante
 
 @Repository
 public interface LearningCollectionRepository extends JpaRepository<LearningCollection, Long> {
-
     List<LearningCollection> findAllByTeacherId(Long teacherId);
-
     boolean existsByNameAndTeacherId(String name, Long teacherId);
-
     Optional<LearningCollection> findByName(String name);
+    Optional<LearningCollection> findByNameAndTeacherId(String name, Long teacherId);
 }

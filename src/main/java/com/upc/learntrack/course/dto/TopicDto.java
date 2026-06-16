@@ -9,13 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopicDto {
+   private Long id;
 
-    private Long id;
+   @NotBlank(message = "El nombre del tema es obligatorio")
+   private String name;
 
-    @NotBlank(message = "El nombre del tema es obligatorio")
-    private String name;
-
-    private Integer orderIdx;
-
-    private Long learningCollectionId; 
+   private Integer orderIdx;
 }
