@@ -32,9 +32,8 @@ services:
       ollama serve &
       SERVE_PID=$! &&
       sleep 5 &&
-      echo 'Descargando modelo phi3:mini...' &&
-      ollama pull phi3:mini &&
-      echo 'Modelo listo. Manteniendo contenedor activo...' &&
+      echo 'Intentando descargar phi3:mini (opcional)...' &&
+      ollama pull phi3:mini || echo 'Modelo no disponible, continuando sin el...' &&
       tail -f /dev/null
       "
     healthcheck:
@@ -69,7 +68,7 @@ services:
       db:
         condition: service_healthy
       ollama:
-        condition: service_healthy
+        condition: service_started
     restart: on-failure
 
 volumes:
