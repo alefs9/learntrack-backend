@@ -10,10 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LearningCollectionDto {
 
-   private Long id;
+    private Long id;
 
-   @NotBlank(message = "El nombre de la colección es obligatorio")
-   private String name;
-   
-   private String description;
+    @NotBlank(message = "El nombre de la colección es obligatorio")
+    private String name;
+    
+    private String description;
+    
+    // Sin el @NotNull para que Postman no lo exija
+    private Long teacherId; 
 }

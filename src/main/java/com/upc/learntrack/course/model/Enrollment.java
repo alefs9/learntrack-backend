@@ -9,29 +9,30 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "enrollments", uniqueConstraints = {
-       @UniqueConstraint(columnNames = {"student_id", "group_id"})
+        @UniqueConstraint(columnNames = {"student_id", "group_id"})
 })
 public class Enrollment {
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "student_id", nullable = false)
-   private Student student;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "group_id", nullable = false)
-   private Group group;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
 
-   @Column(name = "enrolled_at", nullable = false, updatable = false)
-   private LocalDateTime enrolledAt;
+    @Column(name = "enrolled_at", nullable = false, updatable = false)
+    private LocalDateTime enrolledAt;
 
-   @PrePersist
-   protected void onCreate() {
-       this.enrolledAt = LocalDateTime.now();
-   }
+    @PrePersist
+    protected void onCreate() {
+        this.enrolledAt = LocalDateTime.now();
+    }
 }

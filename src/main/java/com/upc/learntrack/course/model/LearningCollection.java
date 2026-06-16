@@ -11,37 +11,40 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "collections", uniqueConstraints = {
-       @UniqueConstraint(columnNames = {"teacher_id", "name"})
+        @UniqueConstraint(columnNames = {"teacher_id", "name"})
 })
 public class LearningCollection {
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-   @Column(nullable = false, length = 120)
-   private String name;
+    @Column(nullable = false, length = 120)
+    private String name;
 
-   @Column(columnDefinition = "TEXT")
-   private String description;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "teacher_id", nullable = false)
-   private Teacher teacher;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id", nullable = false)
+    private Teacher teacher;
 
-   @OneToMany(mappedBy = "learningCollection", cascade = CascadeType.ALL, orphanRemoval = true)
-   private List<Topic> topics = new ArrayList<>();
+    @OneToMany(mappedBy = "learningCollection", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Topic> topics = new ArrayList<>();
 
-   @OneToMany(mappedBy = "learningCollection", cascade = CascadeType.ALL, orphanRemoval = true)
-   private List<CollectionGroup> collectionGroups = new ArrayList<>();
+    @OneToMany(mappedBy = "learningCollection", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CollectionGroup> collectionGroups = new ArrayList<>();
 
-   @Column(name = "created_at", nullable = false, updatable = false)
-   private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-   @PrePersist
-   protected void onCreate() {
-       this.createdAt = LocalDateTime.now();
-   }
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

@@ -1,7 +1,10 @@
 package com.upc.learntrack.course.service;
 
 import com.upc.learntrack.course.dto.EnrollmentDto;
+import java.util.List;
 
 public interface EnrollmentService {
-    EnrollmentDto enrollStudent(String groupCode, EnrollmentDto dto);
+    List<EnrollmentDto> findAllByGroup(Long groupId);
+    EnrollmentDto save(EnrollmentDto dto);
+    void delete(Long id);
 }

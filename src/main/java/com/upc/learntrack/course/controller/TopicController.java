@@ -6,10 +6,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -19,9 +17,9 @@ public class TopicController {
 
     private final TopicService topicService;
 
-    @GetMapping("/collections/{collectionName}/topics")
-    public ResponseEntity<List<TopicDto>> findAllByCollection(@PathVariable String collectionName) {
-        return ResponseEntity.ok(topicService.findAllByCollectionName(collectionName));
+    @GetMapping("/topics/collection/{collectionId}")
+    public ResponseEntity<List<TopicDto>> findAllByCollection(@PathVariable Long collectionId) {
+        return ResponseEntity.ok(topicService.findAllByCollection(collectionId));
     }
 
     @GetMapping("/topics/{id}")
@@ -29,21 +27,9 @@ public class TopicController {
         return ResponseEntity.ok(topicService.findById(id));
     }
 
-    @PostMapping("/collections/{collectionName}/topics")
-    @PreAuthorize("hasAuthority('DOCENTE')")
-    public ResponseEntity<TopicDto> save(@PathVariable String collectionName, @Valid @RequestBody TopicDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(topicService.save(collectionName, dto));
-    }
-
-    @GetMapping("/topics")
-    @PreAuthorize("hasAnyAuthority('ESTUDIANTE', 'DOCENTE')")
-    public ResponseEntity<List<TopicDto>> getAllTopics() {
-        return ResponseEntity.ok(topicService.findAll());
-    }
-
-    @GetMapping("/topics/priorities")
-    @PreAuthorize("hasAuthority('ESTUDIANTE')")
-    public ResponseEntity<List<TopicDto>> getPrioritizedTopics(Principal principal) {
-        return ResponseEntity.ok(topicService.findPrioritizedTopicsForStudent(principal.getName()));
+    @PostMapping("/collections/{collectionId}/topics")
+    public ResponseEntity<TopicDto> save(@PathVariable Long collectionId, @Valid @RequestBody TopicDto dto) {
+        dto.setLearningCollectionId(collectionId);
+        return new ResponseEntity<>(topicService.save(dto), HttpStatus.CREATED);
     }
 }

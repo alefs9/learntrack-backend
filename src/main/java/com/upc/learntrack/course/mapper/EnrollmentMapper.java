@@ -9,11 +9,10 @@ import org.mapstruct.Mapping;
 public interface EnrollmentMapper {
 
     @Mapping(source = "student.user.email", target = "studentEmail")
-    @Mapping(source = "group.code", target = "groupCode")
+    @Mapping(source = "group.id", target = "groupId")
     EnrollmentDto toDto(Enrollment enrollment);
 
     @Mapping(target = "student", ignore = true)
-    @Mapping(target = "group", ignore = true)
-    @Mapping(target = "enrolledAt", ignore = true) 
+    @Mapping(source = "groupId", target = "group.id")
     Enrollment toEntity(EnrollmentDto enrollmentDto);
 }

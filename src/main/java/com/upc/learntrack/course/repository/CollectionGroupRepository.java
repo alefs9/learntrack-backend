@@ -9,5 +9,10 @@ import java.util.List;
 
 @Repository
 public interface CollectionGroupRepository extends JpaRepository<CollectionGroup, CollectionGroupId> {
+
+    // Busca dentro del ID embebido (id.groupId)
     List<CollectionGroup> findAllByIdGroupId(Long groupId);
+
+    // Busca dentro del ID embebido (id.collectionId)
+    List<CollectionGroup> findAllByIdCollectionId(Long collectionId);
 }
