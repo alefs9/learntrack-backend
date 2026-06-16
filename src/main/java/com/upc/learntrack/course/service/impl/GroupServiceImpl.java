@@ -205,4 +205,52 @@ public class GroupServiceImpl implements GroupService {
         }
         return stats;
     }
+
+    @Override
+    @Transactional
+    public GroupDto update(Long id, GroupDto dto, String teacherEmail) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new GroupNotFoundException("Grupo no encontrado"));
+
+        if (!group.getTeacher().getUser().getEmail().equals(teacherEmail)) {
+            throw new SecurityException("No tienes permiso para modificar este grupo");
+        }
+
+        // Validar código duplicado (excepto sí mismo)
+        if (!group.getCode().equals(dto.getCode()) && groupRepository.existsByCode(dto.getCode())) {
+            throw new IllegalArgumentException("El código '" + dto.getCode() + "' ya está en uso.");
+        }
+
+        // Validar nombre duplicado para el mismo profesor (excepto sí mismo)
+        if (!group.getName().equals(dto.getName()) &&
+                groupRepository.existsByTeacherIdAndName(group.getTeacher().getId(), dto.getName())) {
+            throw new IllegalArgumentException("Ya existe un grupo con el nombre '" + dto.getName() + "'.");
+        }
+
+        group.setName(dto.getName());
+        group.setCode(dto.getCode());
+        return groupMapper.toDto(groupRepository.save(group));
+    }
+
+    @Override
+    @Transactional
+    public void removeStudentFromGroup(String groupCode, String studentEmail, String teacherEmail) {
+        Group group = groupRepository.findByCode(groupCode)
+                .orElseThrow(() -> new GroupNotFoundException("Grupo no encontrado"));
+
+        if (!group.getTeacher().getUser().getEmail().equals(teacherEmail)) {
+            throw new SecurityException("No tienes permiso para modificar este grupo");
+        }
+
+        Student student = studentRepository.findByUserEmail(studentEmail)
+                .orElseThrow(() -> new StudentNotFoundException("Estudiante no encontrado"));
+
+        // Buscar la matrícula
+        Enrollment enrollment = enrollmentRepository.findAllByStudentId(student.getId()).stream()
+                .filter(e -> e.getGroup().getId().equals(group.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("El estudiante no pertenece a este grupo"));
+
+        enrollmentRepository.delete(enrollment);
+    }
 }

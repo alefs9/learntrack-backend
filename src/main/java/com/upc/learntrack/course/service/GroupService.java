@@ -19,4 +19,6 @@ public interface GroupService {
     List<StudentSimpleDto> findStudentsByGroupCode(String code);
     StudentSimpleDto enrollStudent(String groupCode, String studentEmail, String teacherEmail);
     List<StudentStatDto> getStudentStats(String groupCode);
+    GroupDto update(Long id, GroupDto dto, String teacherEmail);
+    void removeStudentFromGroup(String groupCode, String studentEmail, String teacherEmail);
 }

@@ -89,4 +89,23 @@ public class GroupController {
    public ResponseEntity<List<StudentStatDto>> getGroupStats(@PathVariable String code) {
       return ResponseEntity.ok(groupService.getStudentStats(code));
    }
+
+   @PutMapping("/{id}")
+   @PreAuthorize("hasAuthority('DOCENTE')")
+   public ResponseEntity<GroupDto> update(
+           @PathVariable Long id,
+           @Valid @RequestBody GroupDto dto,
+           Principal principal) {
+      return ResponseEntity.ok(groupService.update(id, dto, principal.getName()));
+   }
+
+   @DeleteMapping("/{code}/students/{email}")
+   @PreAuthorize("hasAuthority('DOCENTE')")
+   public ResponseEntity<Void> removeStudent(
+           @PathVariable String code,
+           @PathVariable String email,
+           Principal principal) {
+      groupService.removeStudentFromGroup(code, email, principal.getName());
+      return ResponseEntity.noContent().build();
+   }
 }
