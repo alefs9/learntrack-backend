@@ -24,6 +24,6 @@ public class Topic {
    @JoinColumn(name = "collection_id", nullable = false)
    private LearningCollection learningCollection;
 
-   @Column(name = "order_idx", nullable = false)
+   @Column(name = "order_idx", nullable = false, columnDefinition = "integer default 0")
    private Integer orderIdx = 0;
 }

@@ -8,9 +8,10 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TopicMapper {
-    TopicDto toDto(Topic topic);
 
+    TopicDto toDto(Topic topic);
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "learningCollection", ignore = true)
+    @Mapping(target = "orderIdx", ignore = true)
     Topic toEntity(TopicDto topicDto);
 }

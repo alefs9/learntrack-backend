@@ -23,7 +23,7 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <jjwt.version>0.11.5</jjwt.version>
         <openhtmltopdf.version>1.0.10</openhtmltopdf.version>
-        <!-- Spring AI version (M4) -->
+        <!-- Versión de Spring AI (milestone) -->
         <spring-ai.version>1.0.0-M4</spring-ai.version>
     </properties>
 
@@ -87,12 +87,7 @@
             <version>2.0.29</version>
         </dependency>
 
-        <!-- Spring AI Ollama -->
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-ollama</artifactId>
-            <version>${spring-ai.version}</version>
-        </dependency>
+        <!-- Spring AI OpenAI Starter (compatible con Groq) -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
@@ -150,11 +145,9 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>6.2.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
