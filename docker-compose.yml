@@ -16,32 +16,6 @@ services:
       timeout: 5s
       retries: 5
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: learntrack-ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_KEEP_ALIVE=24h
-    entrypoint: /bin/sh
-    command: >
-      -c "
-      echo 'Iniciando servidor Ollama...' &&
-      ollama serve &
-      SERVE_PID=$! &&
-      sleep 5 &&
-      echo 'Intentando descargar phi3:mini (opcional)...' &&
-      ollama pull phi3:mini || echo 'Modelo no disponible, continuando sin el...' &&
-      tail -f /dev/null
-      "
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
   backend:
     build: .
     container_name: learntrack-backend
@@ -67,10 +41,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      ollama:
-        condition: service_started
+
     restart: on-failure
 
 volumes:
   postgres_data:
-  ollama_data:

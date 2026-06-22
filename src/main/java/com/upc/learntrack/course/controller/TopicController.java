@@ -50,4 +50,22 @@ public class TopicController {
     public ResponseEntity<List<TopicDto>> getPrioritizedTopics(Principal principal) {
         return ResponseEntity.ok(topicService.findPrioritizedTopicsForStudent(principal.getName()));
     }
+
+    @PutMapping("/topics/{id}")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<TopicDto> update(
+            @PathVariable Long id,
+            @Valid @RequestBody TopicDto dto,
+            Principal principal) {
+        return ResponseEntity.ok(topicService.update(id, dto, principal.getName()));
+    }
+
+    @DeleteMapping("/topics/{id}")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            Principal principal) {
+        topicService.delete(id, principal.getName());
+        return ResponseEntity.noContent().build();
+    }
 }

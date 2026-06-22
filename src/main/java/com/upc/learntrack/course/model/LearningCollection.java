@@ -13,13 +13,17 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "collections", uniqueConstraints = {
-       @UniqueConstraint(columnNames = {"teacher_id", "name"})
+        @UniqueConstraint(columnNames = {"teacher_id", "name"}),
+        @UniqueConstraint(columnNames = {"teacher_id", "code"})
 })
 public class LearningCollection {
 
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long id;
+
+   @Column(nullable = false, length = 20)
+   private String code;
 
    @Column(nullable = false, length = 120)
    private String name;
@@ -35,6 +39,10 @@ public class LearningCollection {
    private List<Topic> topics = new ArrayList<>();
 
    @OneToMany(mappedBy = "learningCollection", cascade = CascadeType.ALL, orphanRemoval = true)
+   private List<Group> groups = new ArrayList<>();
+
+   // Déjalo por compatibilidad temporal
+   @OneToMany(mappedBy = "learningCollection", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<CollectionGroup> collectionGroups = new ArrayList<>();
 
    @Column(name = "created_at", nullable = false, updatable = false)
@@ -42,6 +50,6 @@ public class LearningCollection {
 
    @PrePersist
    protected void onCreate() {
-       this.createdAt = LocalDateTime.now();
+      this.createdAt = LocalDateTime.now();
    }
 }

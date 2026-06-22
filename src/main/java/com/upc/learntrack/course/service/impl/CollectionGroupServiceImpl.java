@@ -14,6 +14,7 @@ import com.upc.learntrack.course.repository.CollectionGroupRepository;
 import com.upc.learntrack.course.repository.GroupRepository;
 import com.upc.learntrack.course.repository.LearningCollectionRepository;
 import com.upc.learntrack.course.service.CollectionGroupService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

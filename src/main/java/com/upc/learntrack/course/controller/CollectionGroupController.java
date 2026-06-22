@@ -2,6 +2,7 @@ package com.upc.learntrack.course.controller;
 
 import com.upc.learntrack.course.dto.CollectionGroupDto;
 import com.upc.learntrack.course.dto.LinkCollectionGroupRequest;
+import com.upc.learntrack.course.dto.MoveGroupRequest;
 import com.upc.learntrack.course.service.CollectionGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,10 +1,6 @@
 package com.upc.learntrack.course.controller;
 
-import com.upc.learntrack.course.dto.GroupDto;
-import com.upc.learntrack.course.dto.GroupDetailsDto;
-import com.upc.learntrack.course.dto.StudentDto;
-import com.upc.learntrack.course.dto.StudentSimpleDto;
-import com.upc.learntrack.course.dto.StudentStatDto;
+import com.upc.learntrack.course.dto.*;
 import com.upc.learntrack.course.service.GroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -106,6 +102,44 @@ public class GroupController {
            @PathVariable String email,
            Principal principal) {
       groupService.removeStudentFromGroup(code, email, principal.getName());
+      return ResponseEntity.noContent().build();
+   }
+
+   @PostMapping("/{code}/join-code")
+   @PreAuthorize("hasAuthority('DOCENTE')")
+   public ResponseEntity<GroupJoinCodeDto> generateJoinCode(
+           @PathVariable String code,
+           Principal principal) {
+      return ResponseEntity.status(HttpStatus.CREATED)
+              .body(groupService.generateJoinCode(code, principal.getName()));
+   }
+
+   @PostMapping("/join")
+   @PreAuthorize("hasAuthority('ESTUDIANTE')")
+   public ResponseEntity<StudentSimpleDto> joinGroup(
+           @RequestBody Map<String, String> payload,
+           Principal principal) {
+      String joinCode = payload.get("code");
+      return ResponseEntity.status(HttpStatus.CREATED)
+              .body(groupService.joinGroupByTemporaryCode(joinCode, principal.getName()));
+   }
+
+   @PatchMapping("/{groupId}/topics/{topicId}/assigned")
+   @PreAuthorize("hasAuthority('DOCENTE')")
+   public ResponseEntity<Void> setTopicAssigned(
+           @PathVariable Long groupId,
+           @PathVariable Long topicId,
+           @RequestParam boolean assigned) {
+      groupService.setTopicAssigned(groupId, topicId, assigned);
+      return ResponseEntity.noContent().build();
+   }
+
+   @DeleteMapping("/{id}")
+   @PreAuthorize("hasAuthority('DOCENTE')")
+   public ResponseEntity<Void> deleteGroup(
+           @PathVariable Long id,
+           Principal principal) {
+      groupService.deleteGroup(id, principal.getName());
       return ResponseEntity.noContent().build();
    }
 }
