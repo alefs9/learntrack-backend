@@ -50,4 +50,53 @@ public class TopicController {
     public ResponseEntity<List<TopicDto>> getPrioritizedTopics(Principal principal) {
         return ResponseEntity.ok(topicService.findPrioritizedTopicsForStudent(principal.getName()));
     }
+<<<<<<< Updated upstream
+=======
+
+    @PutMapping("/topics/{id}")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<TopicDto> update(
+            @PathVariable Long id,
+            @Valid @RequestBody TopicDto dto,
+            Principal principal) {
+        return ResponseEntity.ok(topicService.update(id, dto, principal.getName()));
+    }
+
+    @DeleteMapping("/topics/{id}")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            Principal principal) {
+        topicService.delete(id, principal.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Temas visibles para un grupo específico dentro de una colección.
+     * Si el tema no tiene restricciones de grupo → aplica a todos.
+     * Si tiene restricciones → solo los grupos con assigned=true lo ven.
+     */
+    @GetMapping("/collections/{collectionName}/groups/{groupId}/topics")
+    @PreAuthorize("hasAnyAuthority('DOCENTE', 'ESTUDIANTE')")
+    public ResponseEntity<List<TopicDto>> findTopicsForGroup(
+            @PathVariable String collectionName,
+            @PathVariable Long groupId,
+            Principal principal) {
+        return ResponseEntity.ok(topicService.findVisibleTopicsForGroup(collectionName, groupId, principal.getName()));
+    }
+
+    /**
+     * Asigna un tema a grupos específicos (restricción opcional).
+     * Si groupIds está vacío → el tema aplica a todos los grupos (sin restricción).
+     */
+    @PutMapping("/topics/{id}/groups")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<Void> assignToGroups(
+            @PathVariable Long id,
+            @RequestBody List<Long> groupIds,
+            Principal principal) {
+        topicService.assignTopicToGroups(id, groupIds, principal.getName());
+        return ResponseEntity.noContent().build();
+    }
+>>>>>>> Stashed changes
 }

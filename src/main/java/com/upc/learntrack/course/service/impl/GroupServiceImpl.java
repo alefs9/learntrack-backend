@@ -4,6 +4,7 @@ import com.upc.learntrack.assessment.repository.ActivityResultRepository;
 import com.upc.learntrack.assessment.model.ActivityResult;
 import com.upc.learntrack.course.dto.*;
 import com.upc.learntrack.course.exception.GroupNotFoundException;
+import com.upc.learntrack.course.exception.LearningCollectionNotFoundException;
 import com.upc.learntrack.course.exception.StudentNotFoundException;
 import com.upc.learntrack.course.exception.TeacherNotFoundException;
 import com.upc.learntrack.course.mapper.GroupMapper;
@@ -26,6 +27,7 @@ public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
     private final TeacherRepository teacherRepository;
+    private final LearningCollectionRepository learningCollectionRepository;
     private final GroupMapper groupMapper;
     private final StudentMapper studentMapper;
     private final GroupTopicPriorityRepository priorityRepository;
@@ -62,17 +64,10 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public GroupDto save(GroupDto dto, String teacherEmail) {
-        if (groupRepository.existsByCode(dto.getCode())) {
-            throw new IllegalArgumentException("El código de grupo '" + dto.getCode() + "' ya está en uso.");
+        if (dto.getCollectionId() == null) {
+            throw new IllegalArgumentException("El grupo debe pertenecer a una colección.");
         }
-        Teacher teacher = teacherRepository.findByUserEmail(teacherEmail)
-                .orElseThrow(() -> new TeacherNotFoundException("Profesor no encontrado con correo: " + teacherEmail));
-        if (groupRepository.existsByTeacherIdAndName(teacher.getId(), dto.getName())) {
-            throw new IllegalArgumentException("Ya existe un grupo con el nombre '" + dto.getName() + "'.");
-        }
-        Group group = groupMapper.toEntity(dto);
-        group.setTeacher(teacher);
-        return groupMapper.toDto(groupRepository.save(group));
+        return saveInCollection(dto.getCollectionId(), dto, teacherEmail);
     }
 
     @Override
@@ -205,4 +200,119 @@ public class GroupServiceImpl implements GroupService {
         }
         return stats;
     }
+<<<<<<< Updated upstream
+=======
+
+    @Override
+    @Transactional
+    public GroupDto update(Long id, GroupDto dto, String teacherEmail) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new GroupNotFoundException("Grupo no encontrado"));
+
+        if (!group.getTeacher().getUser().getEmail().equals(teacherEmail)) {
+            throw new SecurityException("No tienes permiso para modificar este grupo");
+        }
+
+        // Validar código duplicado (excepto sí mismo)
+        if (!group.getCode().equals(dto.getCode()) && groupRepository.existsByCode(dto.getCode())) {
+            throw new IllegalArgumentException("El código '" + dto.getCode() + "' ya está en uso.");
+        }
+
+        // Validar nombre duplicado para el mismo profesor (excepto sí mismo)
+        if (!group.getName().equals(dto.getName()) &&
+                groupRepository.existsByTeacherIdAndName(group.getTeacher().getId(), dto.getName())) {
+            throw new IllegalArgumentException("Ya existe un grupo con el nombre '" + dto.getName() + "'.");
+        }
+
+        group.setName(dto.getName());
+        group.setCode(dto.getCode());
+        return groupMapper.toDto(groupRepository.save(group));
+    }
+
+    @Override
+    @Transactional
+    public void removeStudentFromGroup(String groupCode, String studentEmail, String teacherEmail) {
+        Group group = groupRepository.findByCode(groupCode)
+                .orElseThrow(() -> new GroupNotFoundException("Grupo no encontrado"));
+
+        if (!group.getTeacher().getUser().getEmail().equals(teacherEmail)) {
+            throw new SecurityException("No tienes permiso para modificar este grupo");
+        }
+
+        Student student = studentRepository.findByUserEmail(studentEmail)
+                .orElseThrow(() -> new StudentNotFoundException("Estudiante no encontrado"));
+
+        // Buscar la matrícula
+        Enrollment enrollment = enrollmentRepository.findAllByStudentId(student.getId()).stream()
+                .filter(e -> e.getGroup().getId().equals(group.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("El estudiante no pertenece a este grupo"));
+
+        enrollmentRepository.delete(enrollment);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GroupDto> findGroupsByCollection(Long collectionId, String teacherEmail) {
+        Teacher teacher = teacherRepository.findByUserEmail(teacherEmail)
+                .orElseThrow(() -> new TeacherNotFoundException("Profesor no encontrado con correo: " + teacherEmail));
+        return groupRepository.findAllByTeacherIdAndLearningCollectionId(teacher.getId(), collectionId).stream()
+                .map(groupMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public GroupDto saveInCollection(Long collectionId, GroupDto dto, String teacherEmail) {
+        if (groupRepository.existsByCode(dto.getCode())) {
+            throw new IllegalArgumentException("El código de grupo '" + dto.getCode() + "' ya está en uso.");
+        }
+        Teacher teacher = teacherRepository.findByUserEmail(teacherEmail)
+                .orElseThrow(() -> new TeacherNotFoundException("Profesor no encontrado con correo: " + teacherEmail));
+        LearningCollection collection = learningCollectionRepository.findById(collectionId)
+                .orElseThrow(() -> new LearningCollectionNotFoundException("Colección no encontrada con ID: " + collectionId));
+        if (!collection.getTeacher().getId().equals(teacher.getId())) {
+            throw new SecurityException("No tienes permiso para crear grupos en esta colección.");
+        }
+        if (groupRepository.existsByTeacherIdAndName(teacher.getId(), dto.getName())) {
+            throw new IllegalArgumentException("Ya existe un grupo con el nombre '" + dto.getName() + "'.");
+        }
+        Group group = groupMapper.toEntity(dto);
+        group.setTeacher(teacher);
+        group.setLearningCollection(collection);
+        return groupMapper.toDto(groupRepository.save(group));
+    }
+
+    @Override
+    @Transactional
+    public void deleteGroup(Long id, String teacherEmail) {
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new GroupNotFoundException("Grupo no encontrado con ID: " + id));
+        if (!group.getTeacher().getUser().getEmail().equals(teacherEmail)) {
+            throw new SecurityException("No tienes permiso para eliminar este grupo.");
+        }
+        groupRepository.delete(group);
+    }
+
+    @Override
+    public GroupJoinCodeDto generateJoinCode(String groupCode, String teacherEmail) {
+        return null;
+    }
+
+    @Override
+    public StudentSimpleDto joinGroupByTemporaryCode(String code, String studentEmail) {
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void setTopicAssigned(Long groupId, Long topicId, boolean assigned) {
+        GroupTopicId id = new GroupTopicId(groupId, topicId);
+        GroupTopicPriority gtp = priorityRepository.findById(id)
+                .orElse(new GroupTopicPriority());
+        gtp.setId(id);
+        gtp.setAssigned(assigned);
+        priorityRepository.save(gtp);
+    }
+>>>>>>> Stashed changes
 }

@@ -9,4 +9,11 @@ public interface TopicService {
     TopicDto save(String collectionName, TopicDto dto, String teacherEmail);
     List<TopicDto> findAll();
     List<TopicDto> findPrioritizedTopicsForStudent(String studentEmail);
+<<<<<<< Updated upstream
+=======
+    TopicDto update(Long id, TopicDto dto, String teacherEmail);
+    void delete(Long id, String teacherEmail);
+    List<TopicDto> findVisibleTopicsForGroup(String collectionName, Long groupId, String userEmail);
+    void assignTopicToGroups(Long topicId, List<Long> groupIds, String teacherEmail);
+>>>>>>> Stashed changes
 }

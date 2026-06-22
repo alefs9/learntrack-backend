@@ -39,6 +39,13 @@ public class Group {
    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<CollectionGroup> collectionGroups = new ArrayList<>();
 
+<<<<<<< Updated upstream
+=======
+   @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "collection_id", nullable = false)
+   private LearningCollection learningCollection;
+
+>>>>>>> Stashed changes
    @Column(name = "created_at", nullable = false, updatable = false)
    private LocalDateTime createdAt;
 

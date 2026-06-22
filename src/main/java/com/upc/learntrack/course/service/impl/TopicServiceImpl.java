@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.upc.learntrack.course.exception.GroupNotFoundException;
+import com.upc.learntrack.course.repository.GroupRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class TopicServiceImpl implements TopicService {
     private final EnrollmentRepository enrollmentRepository;
     private final GroupTopicPriorityRepository groupTopicPriorityRepository;
     private final TeacherRepository teacherRepository;
+    private final GroupRepository groupRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -108,4 +111,83 @@ public class TopicServiceImpl implements TopicService {
                 .map(topicMapper::toDto)
                 .collect(Collectors.toList());
     }
+<<<<<<< Updated upstream
+=======
+
+    @Override
+    @Transactional
+    public TopicDto update(Long id, TopicDto dto, String teacherEmail) {
+        Topic topic = topicRepository.findById(id)
+                .orElseThrow(() -> new TopicNotFoundException("Tema no encontrado con ID: " + id));
+        Teacher teacher = teacherRepository.findByUserEmail(teacherEmail)
+                .orElseThrow(() -> new TeacherNotFoundException("Docente no encontrado"));
+        if (!topic.getLearningCollection().getTeacher().getId().equals(teacher.getId())) {
+            throw new SecurityException("No tienes permiso para modificar este tema");
+        }
+        // Verificar nombre duplicado (excepto sí mismo)
+        if (!topic.getName().equals(dto.getName()) &&
+                topicRepository.existsByNameAndLearningCollectionId(dto.getName(), topic.getLearningCollection().getId())) {
+            throw new IllegalArgumentException("Ya existe un tema con el nombre '" + dto.getName() + "' en esta colección.");
+        }
+        topic.setName(dto.getName());
+        // No se modifica orderIdx normalmente, pero se podría permitir
+        if (dto.getOrderIdx() != null) {
+            topic.setOrderIdx(dto.getOrderIdx());
+        }
+        return topicMapper.toDto(topicRepository.save(topic));
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id, String teacherEmail) {
+        Topic topic = topicRepository.findById(id)
+                .orElseThrow(() -> new TopicNotFoundException("Tema no encontrado con ID: " + id));
+        Teacher teacher = teacherRepository.findByUserEmail(teacherEmail)
+                .orElseThrow(() -> new TeacherNotFoundException("Docente no encontrado"));
+        if (!topic.getLearningCollection().getTeacher().getId().equals(teacher.getId())) {
+            throw new SecurityException("No tienes permiso para eliminar este tema");
+        }
+        topicRepository.delete(topic);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TopicDto> findVisibleTopicsForGroup(String collectionName, Long groupId, String userEmail) {
+        LearningCollection collection = learningCollectionRepository.findByName(collectionName)
+                .orElseThrow(() -> new LearningCollectionNotFoundException("Colección no encontrada: " + collectionName));
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("Grupo no encontrado con ID: " + groupId));
+        if (!group.getLearningCollection().getId().equals(collection.getId())) {
+            throw new IllegalArgumentException("El grupo no pertenece a esta colección.");
+        }
+        return topicRepository.findVisibleTopicsForGroup(collection.getId(), groupId).stream()
+                .map(topicMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void assignTopicToGroups(Long topicId, List<Long> groupIds, String teacherEmail) {
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new TopicNotFoundException("Tema no encontrado con ID: " + topicId));
+        Teacher teacher = teacherRepository.findByUserEmail(teacherEmail)
+                .orElseThrow(() -> new TeacherNotFoundException("Docente no encontrado"));
+        if (!topic.getLearningCollection().getTeacher().getId().equals(teacher.getId())) {
+            throw new SecurityException("No tienes permiso para modificar este tema");
+        }
+        // Eliminar restricciones previas
+        List<GroupTopicPriority> existing = groupTopicPriorityRepository.findAllByTopicId(topicId);
+        groupTopicPriorityRepository.deleteAll(existing);
+
+        // Si groupIds está vacío → sin restricciones (aplica a todos)
+        for (Long groupId : groupIds) {
+            GroupTopicId id = new GroupTopicId(groupId, topicId);
+            GroupTopicPriority gtp = new GroupTopicPriority();
+            gtp.setId(id);
+            gtp.setAssigned(true);
+            gtp.setPriority(false);
+            groupTopicPriorityRepository.save(gtp);
+        }
+    }
+>>>>>>> Stashed changes
 }
