@@ -17,5 +17,8 @@ public class GroupDto {
    @NotBlank(message = "El código es obligatorio")
    private String code;
 
+   private Long collectionId;
+   private String collectionName;
+
    private LocalDateTime createdAt;
 }

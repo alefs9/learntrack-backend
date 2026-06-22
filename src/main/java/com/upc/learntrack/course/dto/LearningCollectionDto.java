@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 public class LearningCollectionDto {
 
    private Long id;
+   private String code;
 
    @NotBlank(message = "El nombre de la colección es obligatorio")
    private String name;
-   
+
    private String description;
 }
