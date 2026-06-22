@@ -2,6 +2,7 @@ package com.upc.learntrack.course.controller;
 
 import com.upc.learntrack.course.dto.CollectionGroupDto;
 import com.upc.learntrack.course.dto.LinkCollectionGroupRequest;
+import com.upc.learntrack.course.dto.MoveGroupRequest;
 import com.upc.learntrack.course.service.CollectionGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,12 @@ public class CollectionGroupController {
     public ResponseEntity<Void> delete(@RequestParam Long collectionId, @RequestParam Long groupId) {
         collectionGroupService.delete(collectionId, groupId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/move")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<Void> moveGroupToCollection(@RequestBody MoveGroupRequest request) {
+        collectionGroupService.moveGroup(request.getGroupId(), request.getTargetCollectionId());
+        return ResponseEntity.ok().build();
     }
 }
