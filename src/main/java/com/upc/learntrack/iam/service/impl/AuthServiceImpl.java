@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
-        user.setVerified(false); 
+        user.setVerified(false);
         user.setStatus(UserStatus.PENDING);
         user.setVerificationCode(null);
         user.setVerificationAttempts(0);
