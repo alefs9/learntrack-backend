@@ -34,6 +34,13 @@
             <url>https://repo.spring.io/milestone</url>
             <snapshots><enabled>false</enabled></snapshots>
         </repository>
+        <!-- Necesario para las versiones M4 -->
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -83,7 +90,7 @@
         <!-- Spring AI OpenAI Starter (compatible con Groq) -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
             <version>${spring-ai.version}</version>
         </dependency>
 

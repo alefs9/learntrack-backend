@@ -1,6 +1,5 @@
 package com.upc.learntrack.ai.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.upc.learntrack.activity.dto.CreateFlashcardDto;
@@ -18,13 +17,11 @@ import com.upc.learntrack.course.model.Topic;
 import com.upc.learntrack.course.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -35,7 +32,7 @@ public class AiGeneratorServiceImpl implements AiGeneratorService {
     private final FlashcardService flashcardService;
     private final TopicRepository topicRepository;
     private final ObjectMapper objectMapper;
-    private final RestClient restClient; // Bean configurado en RestClientConfig
+    private final OllamaChatModel chatModel;
     private final PromptBuilderService promptBuilder;
 
     @Override
@@ -45,11 +42,16 @@ public class AiGeneratorServiceImpl implements AiGeneratorService {
             Topic topic = topicRepository.findByName(topicName)
                     .orElseThrow(() -> new TopicNotFoundException("Tema no encontrado: " + topicName));
 
+            // 1. Construir el prompt
             String prompt = promptBuilder.buildMultiFormatPrompt(topicName, content, types);
-            String response = callOllama(prompt);
-            String generatedText = extractGeneratedText(response);
+            log.info("Prompt enviado a IA: {}", prompt);
 
-            JsonNode root = objectMapper.readTree(generatedText);
+            // 2. Llamar a Ollama usando Spring AI (en lugar de RestClient)
+            String response = chatModel.call(prompt);
+            log.info("Respuesta recibida de IA: {}", response);
+
+            // 3. Parsear el JSON que devolvió la IA
+            JsonNode root = objectMapper.readTree(response);
             GenerateActivityResponseDto result = new GenerateActivityResponseDto();
 
             if (types.contains("QUIZ")) {
@@ -89,31 +91,5 @@ public class AiGeneratorServiceImpl implements AiGeneratorService {
             log.error("Error al generar actividad con IA", e);
             throw new AiGenerationException("Error al generar la actividad con IA local: " + e.getMessage(), e);
         }
-    }
-
-    private String callOllama(String prompt) {
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("model", "llama3");
-        requestMap.put("prompt", prompt);
-        requestMap.put("stream", false);
-        requestMap.put("format", "json");
-
-        String requestBody;
-        try {
-            requestBody = objectMapper.writeValueAsString(requestMap);
-        } catch (JsonProcessingException e) {
-            throw new AiGenerationException("Error al serializar la solicitud a Ollama", e);
-        }
-
-        return restClient.post()
-                .uri("/api/generate")
-                .header("Content-Type", "application/json")
-                .body(requestBody)
-                .retrieve()
-                .body(String.class);
-    }
-
-    private String extractGeneratedText(String ollamaResponse) throws Exception {
-        return objectMapper.readTree(ollamaResponse).path("response").asText();
     }
 }
