@@ -253,4 +253,34 @@ public class GroupServiceImpl implements GroupService {
 
         enrollmentRepository.delete(enrollment);
     }
+
+    @Override
+    public List<GroupDto> findGroupsByCollection(Long collectionId, String teacherEmail) {
+        return List.of();
+    }
+
+    @Override
+    public GroupDto saveInCollection(Long collectionId, GroupDto dto, String teacherEmail) {
+        return null;
+    }
+
+    @Override
+    public void deleteGroup(Long id, String teacherEmail) {
+
+    }
+
+    @Override
+    public GroupJoinCodeDto generateJoinCode(String groupCode, String teacherEmail) {
+        return null;
+    }
+
+    @Override
+    public StudentSimpleDto joinGroupByTemporaryCode(String code, String studentEmail) {
+        return null;
+    }
+
+    @Override
+    public void setTopicAssigned(Long groupId, Long topicId, boolean assigned) {
+
+    }
 }

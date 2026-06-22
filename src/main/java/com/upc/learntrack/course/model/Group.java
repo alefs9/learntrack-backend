@@ -39,6 +39,10 @@ public class Group {
    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<CollectionGroup> collectionGroups = new ArrayList<>();
 
+   @ManyToOne(fetch = FetchType.LAZY)
+   @JoinColumn(name = "collection_id")
+   private LearningCollection learningCollection;
+
    @Column(name = "created_at", nullable = false, updatable = false)
    private LocalDateTime createdAt;
 

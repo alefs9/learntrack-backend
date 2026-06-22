@@ -1,10 +1,7 @@
 package com.upc.learntrack.course.service;
 
-import com.upc.learntrack.course.dto.GroupDto;
-import com.upc.learntrack.course.dto.GroupDetailsDto;
-import com.upc.learntrack.course.dto.StudentDto;
-import com.upc.learntrack.course.dto.StudentSimpleDto;
-import com.upc.learntrack.course.dto.StudentStatDto;
+import com.upc.learntrack.course.dto.*;
+
 import java.util.List;
 
 public interface GroupService {
@@ -21,4 +18,12 @@ public interface GroupService {
     List<StudentStatDto> getStudentStats(String groupCode);
     GroupDto update(Long id, GroupDto dto, String teacherEmail);
     void removeStudentFromGroup(String groupCode, String studentEmail, String teacherEmail);
+    List<GroupDto> findGroupsByCollection(Long collectionId, String teacherEmail);
+    GroupDto saveInCollection(Long collectionId, GroupDto dto, String teacherEmail);
+    void deleteGroup(Long id, String teacherEmail);
+
+    GroupJoinCodeDto generateJoinCode(String groupCode, String teacherEmail);
+    StudentSimpleDto joinGroupByTemporaryCode(String code, String studentEmail);
+
+    void setTopicAssigned(Long groupId, Long topicId, boolean assigned);
 }

@@ -9,4 +9,6 @@ public interface TopicService {
     TopicDto save(String collectionName, TopicDto dto, String teacherEmail);
     List<TopicDto> findAll();
     List<TopicDto> findPrioritizedTopicsForStudent(String studentEmail);
+    TopicDto update(Long id, TopicDto dto, String teacherEmail);
+    void delete(Long id, String teacherEmail);
 }

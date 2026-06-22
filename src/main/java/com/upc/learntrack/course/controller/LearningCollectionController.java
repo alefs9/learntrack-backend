@@ -1,5 +1,7 @@
 package com.upc.learntrack.course.controller;
 
+import com.upc.learntrack.course.dto.GroupDto;
+import com.upc.learntrack.course.service.GroupService;
 import com.upc.learntrack.course.dto.GroupStatisticDto;
 import com.upc.learntrack.course.dto.LearningCollectionDto;
 import com.upc.learntrack.course.dto.TopicStatisticDto;
@@ -21,6 +23,7 @@ import java.util.List;
 public class LearningCollectionController {
 
     private final LearningCollectionService learningCollectionService;
+    private final GroupService groupService;
 
     @GetMapping
     public ResponseEntity<List<LearningCollectionDto>> findAll() {
@@ -71,5 +74,32 @@ public class LearningCollectionController {
             @Valid @RequestBody LearningCollectionDto dto,
             Principal principal) {
         return ResponseEntity.ok(learningCollectionService.update(id, dto, principal.getName()));
+    }
+
+    @GetMapping("/{collectionId}/groups")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<List<GroupDto>> getGroupsByCollection(
+            @PathVariable Long collectionId,
+            Principal principal) {
+        return ResponseEntity.ok(groupService.findGroupsByCollection(collectionId, principal.getName()));
+    }
+
+    @PostMapping("/{collectionId}/groups")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<GroupDto> createGroupInCollection(
+            @PathVariable Long collectionId,
+            @Valid @RequestBody GroupDto dto,
+            Principal principal) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(groupService.saveInCollection(collectionId, dto, principal.getName()));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DOCENTE')")
+    public ResponseEntity<Void> deleteCollection(
+            @PathVariable Long id,
+            Principal principal) {
+        learningCollectionService.delete(id, principal.getName());
+        return ResponseEntity.noContent().build();
     }
 }

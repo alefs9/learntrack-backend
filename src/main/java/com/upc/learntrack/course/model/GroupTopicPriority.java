@@ -17,4 +17,7 @@ public class GroupTopicPriority {
 
     @Column(nullable = false)
     private boolean priority = false;
+
+    @Column(nullable = false)
+    private boolean assigned = true;
 }

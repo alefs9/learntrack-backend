@@ -117,4 +117,14 @@ public class TopicServiceImpl implements TopicService {
                 .map(topicMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public TopicDto update(Long id, TopicDto dto, String teacherEmail) {
+        return null;
+    }
+
+    @Override
+    public void delete(Long id, String teacherEmail) {
+
+    }
 }

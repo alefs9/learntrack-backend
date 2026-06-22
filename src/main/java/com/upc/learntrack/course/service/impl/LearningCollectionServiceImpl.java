@@ -153,4 +153,9 @@ public class LearningCollectionServiceImpl implements LearningCollectionService 
         collection.setDescription(dto.getDescription());
         return learningCollectionMapper.toDto(learningCollectionRepository.save(collection));
     }
+
+    @Override
+    public void delete(Long id, String teacherEmail) {
+
+    }
 }

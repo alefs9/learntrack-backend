@@ -12,8 +12,11 @@ public class LearningCollectionDto {
 
    private Long id;
 
+   @NotBlank(message = "El código de la colección es obligatorio")
+   private String code;
+
    @NotBlank(message = "El nombre de la colección es obligatorio")
    private String name;
-   
+
    private String description;
 }
