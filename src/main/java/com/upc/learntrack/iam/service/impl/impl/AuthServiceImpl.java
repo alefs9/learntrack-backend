@@ -10,6 +10,7 @@ import com.upc.learntrack.iam.exception.RoleNotFoundException;
 import com.upc.learntrack.iam.exception.UserNotFoundException;
 import com.upc.learntrack.iam.model.Role;
 import com.upc.learntrack.iam.model.User;
+import com.upc.learntrack.iam.model.UserStatus;
 import com.upc.learntrack.iam.repository.RoleRepository;
 import com.upc.learntrack.iam.repository.UserRepository;
 import com.upc.learntrack.iam.service.AuthService;
@@ -51,10 +52,14 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
-        user.setVerified(true);
+        user.setVerified(false); // o true, según tu lógica
+        user.setStatus(UserStatus.PENDING);  // <-- NUEVO
+        user.setVerificationCode(null);
+        user.setVerificationAttempts(0);
 
         User savedUser = userRepository.save(user);
 
+        // Crear perfil Teacher o Student según rol
         if (role.getName().equalsIgnoreCase("DOCENTE")) {
             Teacher teacher = new Teacher();
             teacher.setFirstName(request.getFirstName());
@@ -69,17 +74,25 @@ public class AuthServiceImpl implements AuthService {
             studentRepository.save(student);
         }
 
-        return jwtService.generateToken(savedUser.getEmail());
+        // NO devolvemos token, solo mensaje de éxito (puedes devolver un string)
+        return "Usuario registrado correctamente. Espera la aprobación del administrador.";
     }
 
     @Override
     public String login(LoginRequestDto request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+
+        if (user.getStatus() == UserStatus.PENDING) {
+            throw new IllegalStateException("Tu cuenta está pendiente de verificación. Revisa tu correo.");
+        }
+        if (user.getStatus() == UserStatus.REJECTED) {
+            throw new IllegalStateException("Tu cuenta ha sido rechazada. Contacta con soporte.");
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
 
         return jwtService.generateToken(user.getEmail());
     }

@@ -66,4 +66,14 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() { return true; }
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status = UserStatus.PENDING;  // PENDING, ACTIVE, REJECTED
+
+    @Column(name = "verification_code", length = 6)
+    private String verificationCode;
+
+    @Column(name = "verification_attempts")
+    private Integer verificationAttempts = 0;
 }
