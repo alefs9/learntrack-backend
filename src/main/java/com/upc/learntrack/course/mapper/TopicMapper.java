@@ -13,5 +13,5 @@ public interface TopicMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "learningCollection", ignore = true)
     @Mapping(target = "orderIdx", ignore = true)
-    Topic toEntity(TopicDto topicDto);
+    Topic toEntity(TopicDto dto);
 }
