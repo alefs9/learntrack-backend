@@ -67,11 +67,20 @@ public class TopicServiceImpl implements TopicService {
         LearningCollection collection = learningCollectionRepository
                 .findByNameAndTeacherId(collectionName, teacher.getId())
                 .orElseThrow(() -> new LearningCollectionNotFoundException("Colección no encontrada: " + collectionName));
+
+        // Verificar si ya existe un tema con ese nombre
         if (topicRepository.existsByNameAndLearningCollectionId(dto.getName(), collection.getId())) {
             throw new IllegalArgumentException("Ya existe un tema con el nombre '" + dto.getName() + "' en esta colección.");
         }
+
+        // Convertir DTO a entidad
         Topic topic = topicMapper.toEntity(dto);
         topic.setLearningCollection(collection);
+
+        // Asignar el orden (orderIdx) basado en la cantidad de temas existentes
+        int existingTopics = topicRepository.findAllByLearningCollectionId(collection.getId()).size();
+        topic.setOrderIdx(existingTopics);
+
         return topicMapper.toDto(topicRepository.save(topic));
     }
 
