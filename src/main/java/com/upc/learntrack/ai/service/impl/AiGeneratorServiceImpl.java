@@ -17,7 +17,7 @@ import com.upc.learntrack.course.model.Topic;
 import com.upc.learntrack.course.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +32,7 @@ public class AiGeneratorServiceImpl implements AiGeneratorService {
     private final FlashcardService flashcardService;
     private final TopicRepository topicRepository;
     private final ObjectMapper objectMapper;
-    private final OllamaChatModel chatModel;
+    private final OpenAiChatModel chatModel;
     private final PromptBuilderService promptBuilder;
 
     @Override
@@ -46,7 +46,7 @@ public class AiGeneratorServiceImpl implements AiGeneratorService {
             String prompt = promptBuilder.buildMultiFormatPrompt(topicName, content, types);
             log.info("Prompt enviado a IA: {}", prompt);
 
-            // 2. Llamar a Ollama usando Spring AI (en lugar de RestClient)
+            // 2. Llamar a Groq usando OpenAiChatModel
             String response = chatModel.call(prompt);
             log.info("Respuesta recibida de IA: {}", response);
 
@@ -89,7 +89,7 @@ public class AiGeneratorServiceImpl implements AiGeneratorService {
 
         } catch (Exception e) {
             log.error("Error al generar actividad con IA", e);
-            throw new AiGenerationException("Error al generar la actividad con IA local: " + e.getMessage(), e);
+            throw new AiGenerationException("Error al generar la actividad con IA: " + e.getMessage(), e);
         }
     }
 }
