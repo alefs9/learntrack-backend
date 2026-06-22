@@ -65,10 +65,24 @@ public class LearningCollectionServiceImpl implements LearningCollectionService 
     public LearningCollectionDto save(LearningCollectionDto dto, String teacherEmail) {
         Teacher teacher = teacherRepository.findByUserEmail(teacherEmail)
                 .orElseThrow(() -> new TeacherNotFoundException("Profesor no encontrado con correo: " + teacherEmail));
+
+        // Generar código único para la colección (si no viene en el DTO)
+        String code = dto.getCode();
+        if (code == null || code.isBlank()) {
+            code = generateUniqueCode(dto.getName(), teacher.getId());
+        } else {
+            // Verificar que el código sea único para este profesor
+            if (learningCollectionRepository.existsByCodeAndTeacherId(code, teacher.getId())) {
+                throw new IllegalArgumentException("Ya existe una colección con el código '" + code + "'.");
+            }
+        }
+
         if (learningCollectionRepository.existsByNameAndTeacherId(dto.getName(), teacher.getId())) {
             throw new IllegalArgumentException("Ya has creado una colección con el nombre '" + dto.getName() + "'.");
         }
+
         LearningCollection collection = learningCollectionMapper.toEntity(dto);
+        collection.setCode(code);
         collection.setTeacher(teacher);
         return learningCollectionMapper.toDto(learningCollectionRepository.save(collection));
     }
@@ -103,9 +117,7 @@ public class LearningCollectionServiceImpl implements LearningCollectionService 
     public List<GroupStatisticDto> getGroupsStatistics(String collectionName, LocalDate startDate, LocalDate endDate) {
         LearningCollection collection = learningCollectionRepository.findByName(collectionName)
                 .orElseThrow(() -> new LearningCollectionNotFoundException("Colección no encontrada"));
-        List<Group> groups = collection.getCollectionGroups().stream()
-                .map(CollectionGroup::getGroup)
-                .toList();
+        List<Group> groups = collection.getGroups(); // Usar la relación directa Group -> LearningCollection
         List<Topic> topics = topicRepository.findAllByLearningCollectionId(collection.getId());
         List<GroupStatisticDto> result = new ArrayList<>();
 
@@ -151,11 +163,34 @@ public class LearningCollectionServiceImpl implements LearningCollectionService 
 
         collection.setName(dto.getName());
         collection.setDescription(dto.getDescription());
+        // No permitimos cambiar el código
         return learningCollectionMapper.toDto(learningCollectionRepository.save(collection));
     }
 
     @Override
+    @Transactional
     public void delete(Long id, String teacherEmail) {
+        LearningCollection collection = learningCollectionRepository.findById(id)
+                .orElseThrow(() -> new LearningCollectionNotFoundException("Colección no encontrada"));
+        if (!collection.getTeacher().getUser().getEmail().equals(teacherEmail)) {
+            throw new SecurityException("No tienes permiso para eliminar esta colección");
+        }
+        learningCollectionRepository.delete(collection);
+    }
 
+    private String generateUniqueCode(String baseName, Long teacherId) {
+        // Generar código a partir de las primeras letras del nombre + número aleatorio
+        String base = baseName.replaceAll("[^a-zA-Z]", "").toUpperCase();
+        if (base.length() > 3) {
+            base = base.substring(0, 3);
+        } else if (base.isEmpty()) {
+            base = "COL";
+        }
+        String code;
+        int counter = 1;
+        do {
+            code = base + String.format("%03d", counter++);
+        } while (learningCollectionRepository.existsByCodeAndTeacherId(code, teacherId));
+        return code;
     }
 }
